@@ -36,7 +36,7 @@ class ImportUnsplashPhotosCommand extends Command
                 'alternative_slugs' => isset($photo['alternative_slugs']) ? json_encode($photo['alternative_slugs'], JSON_PRETTY_PRINT) : null,
                 'created_at' => now(),
                 'updated_at' => now(),
-                'promoted_at' => $photo['promoted_at'] ?? null,
+                // 'promoted_at' => $photo['promoted_at'] ?? now(),
                 'width' => $photo['width'],
                 'height' => $photo['height'],
                 'color' => $photo['color'],
