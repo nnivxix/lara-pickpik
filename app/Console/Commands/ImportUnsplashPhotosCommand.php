@@ -33,35 +33,48 @@ class ImportUnsplashPhotosCommand extends Command
             $photoDataCollection[] = [
                 'id' => $photo['id'],
                 'slug' => $photo['slug'],
-                'alternative_slugs' => $photo['alternative_slugs'],
-                'created_at' => $photo['created_at'],
-                'updated_at' => $photo['updated_at'],
-                'promoted_at' => $photo['promoted_at'],
+                'alternative_slugs' => isset($photo['alternative_slugs']) ? json_encode($photo['alternative_slugs'], JSON_PRETTY_PRINT) : null,
+                'created_at' => now(),
+                'updated_at' => now(),
+                'promoted_at' => $photo['promoted_at'] ?? null,
                 'width' => $photo['width'],
                 'height' => $photo['height'],
                 'color' => $photo['color'],
-                'blur_hash' => $photo['blur_hash'],
-                'description' => $photo['description'],
-                'alt_description' => $photo['alt_description'],
-                'urls' => $photo['urls'],
-                'links' => $photo['links'],
+                'blur_hash' => $photo['blur_hash'] ?? null,
+                'description' => $photo['description'] ?? null,
+                'alt_description' => $photo['alt_description'] ?? null,
+                'urls' => json_encode($photo['urls'], JSON_PRETTY_PRINT),
+                'links' => json_encode($photo['links'], JSON_PRETTY_PRINT),
                 'likes' => $photo['likes'],
                 'liked_by_user' => $photo['liked_by_user'],
-                'current_user_collections' => $photo['current_user_collections'],
-                'sponsorship' => $photo['sponsorship'],
-                'topic_submissions' => $photo['topic_submissions'],
-                'asset_type' => $photo['asset_type'],
-                'user' => $photo['user'],
-
+                'current_user_collections' => isset($photo['current_user_collections']) ? json_encode($photo['current_user_collections'], JSON_PRETTY_PRINT) : null,
+                'sponsorship' => isset($photo['sponsorship']) ? json_encode($photo['sponsorship'], JSON_PRETTY_PRINT) : null,
+                'topic_submissions' => isset($photo['topic_submissions']) ? json_encode($photo['topic_submissions'], JSON_PRETTY_PRINT) : null,
+                'asset_type' => $photo['asset_type'] ?? null,
+                'user' => json_encode($photo['user'], JSON_PRETTY_PRINT),
             ];
         }
 
+        // dd($photoDataCollection);
+
         // Insert all photo data into the database in a single query
         if (!empty($photoDataCollection)) {
-            Photo::insert($photoDataCollection);
+
+            // add db transaction
+            DB::transaction(function () use ($photoDataCollection) {
+                Photo::insert($photoDataCollection);
+            });
+            // Photo::insert($photoDataCollection);
+
+            //create file json to store data
+            // $filePath = public_path('photos.json');
+            // $file = fopen($filePath, 'w');
+
+            // fwrite($file, json_encode($photoDataCollection, JSON_PRETTY_PRINT));
+            // fclose($file);
+            $this->info('Photos imported successfully!');
+        } else {
+            $this->info('No photos found to import!');
         }
-
-
-        $this->info('Photos imported successfully!');
     }
 }
