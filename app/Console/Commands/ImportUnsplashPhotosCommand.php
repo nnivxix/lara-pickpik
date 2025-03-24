@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\DB;
 
 class ImportUnsplashPhotosCommand extends Command
 {
-    protected $signature = 'unsplash:import-photos';
+    protected $signature = 'unsplash:import-photos
+                            {--page=1 : The page number to import photos from Unsplash API}
+                            {--per-page=30 : The number of photos to import per page}';
 
 
     protected $description = 'Import photos from Unsplash API';
@@ -20,10 +22,14 @@ class ImportUnsplashPhotosCommand extends Command
         // Import photos from Unsplash API using HTTP client
         // Save photos to the database
 
+        $perPage = $this->option('per-page');
+        $page = $this->option('page');
+
         $response = Http::withHeaders([
             'Authorization' => 'Client-ID ' . env('UNSPLASH_ACCESS_KEY'),
         ])->get('https://api.unsplash.com/photos', [
-            'per_page' => 50,
+            'per_page' => $perPage,
+            'page' => $page,
         ]);
 
         $photos = $response->json();
@@ -55,14 +61,12 @@ class ImportUnsplashPhotosCommand extends Command
             ];
         }
 
-        // dd($photoDataCollection);
-
         // Insert all photo data into the database in a single query
         if (!empty($photoDataCollection)) {
 
             // add db transaction
             DB::transaction(function () use ($photoDataCollection) {
-                Photo::insert($photoDataCollection);
+                Photo::upsert($photoDataCollection, ['id'], ['slug', 'alternative_slugs', 'created_at', 'updated_at', 'width', 'height', 'color', 'blur_hash', 'description', 'alt_description', 'urls', 'links', 'likes', 'liked_by_user', 'current_user_collections', 'sponsorship', 'topic_submissions', 'asset_type', 'user']);
             });
             // Photo::insert($photoDataCollection);
 
