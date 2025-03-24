@@ -17,5 +17,8 @@ class PhotoController extends Controller
         return PhotoResource::collection($photos);
     }
 
-    public function show(Request $request, Photo $photo) {}
+    public function show(Request $request, Photo $photo)
+    {
+        return new PhotoResource($photo);
+    }
 }
