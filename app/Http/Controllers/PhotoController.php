@@ -10,11 +10,17 @@ class PhotoController extends Controller
 {
     public function index(Request $request)
     {
-        $photos = Photo::query()
-            ->inRandomOrder()
-            ->paginate(15);
+        $request->validate([
+            'per_page' => 'integer|min:1|max:30',
+        ]);
 
-        return PhotoResource::collection($photos);
+        $photos = Photo::limit($request->per_page ?? 15)
+            ->inRandomOrder()
+            ->get();
+
+        return PhotoResource::collection($photos)
+            ->response()
+            ->setData($photos->map(fn($photo) => (new PhotoResource($photo))->resolve()));
     }
 
     public function show(Request $request, Photo $photo)
