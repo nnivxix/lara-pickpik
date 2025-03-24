@@ -12,10 +12,12 @@ class PhotoController extends Controller
     {
         $request->validate([
             'per_page' => 'integer|min:1|max:30',
+            'page' => 'integer|min:1',
         ]);
 
         $photos = Photo::limit($request->per_page ?? 15)
             ->inRandomOrder()
+            ->offset(($request->page - 1) * ($request->per_page ?? 15))
             ->get();
 
         return PhotoResource::collection($photos)

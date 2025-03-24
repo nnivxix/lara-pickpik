@@ -24,11 +24,13 @@ class PhotoSearchController extends Controller
         }
 
         $query = $request->query('query');
+        $page = $request->query('page', 1);
 
         $photos = Photo::query()
             ->where('description', 'like', "%{$query}%")
             ->orWhere('alt_description', 'like', "%{$query}%")
             ->limit(10)
+            ->offset(($page - 1) * 10)
             ->get();
 
         $collection = PhotoResource::collection($photos);
