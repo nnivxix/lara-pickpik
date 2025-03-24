@@ -10,5 +10,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::get('/photos', [PhotoController::class, 'index'])->name('api.photos.index');
-Route::get('/photos/random', PhotoRandomController::class)->name('api.photos.random');
 Route::get('/photos/{photo}', [PhotoController::class, 'show'])->name('api.photos.show');
+
+Route::get('/random/photo', PhotoRandomController::class)->name('api.photos.random');
